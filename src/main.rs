@@ -23,8 +23,8 @@ fn main() -> io::Result<()> {
                 true
             },
             Err(err) => {
-                println!("Failed to update subscription. Retrying...");
                 println!("{}", err.to_string());
+                println!("Failed to update subscription. Retrying...");
                 false
             }
         };

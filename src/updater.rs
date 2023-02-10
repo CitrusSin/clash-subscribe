@@ -11,9 +11,17 @@ pub fn update_clash_subscription(config: &MainConfig, override_map: &HashMap<Str
         .map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
     let mut clash_config: HashMap<String, Value> = serde_yaml::from_reader(req)
         .map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+    
     for (key, val) in override_map {
-        let old_value = clash_config.insert(key.clone(), val.clone());
-        drop(old_value);
+        match clash_config.get_mut(key) {
+            Some(val_to_change) => {
+                *val_to_change = val.clone();
+            },
+            None => {
+                let old_value = clash_config.insert(key.clone(), val.clone());
+                drop(old_value);
+            }
+        }
     }
     
     let clash_config_file = File::create(config.local_config())?;
