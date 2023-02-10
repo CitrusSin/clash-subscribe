@@ -9,7 +9,8 @@ fn main() -> io::Result<()> {
     println!("clash-subscribe v0.1.0");
     let (config, override_map, success) = load_config()?;
     if !success {
-        println!("Config not set. Exiting...");
+        println!("Config not set.");
+        println!("Head over to {} for configuration file.", config::config_path().display());
         return Ok(())
     }
     println!("Config load complete.");

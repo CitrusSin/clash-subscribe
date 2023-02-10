@@ -1,6 +1,6 @@
 use std::{io, fs};
 use std::fs::File;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::collections::HashMap;
 
 use serde::{Serialize, Deserialize};
@@ -9,8 +9,8 @@ use serde_yaml::{self, Value};
 use dirs;
 
 const CONFIG_DIR: &str = ".config/clash-subscribe/";
-const CONFIG_FILE: &str = ".config/clash-subscribe/config.yaml";
-const OVERRIDE_FILE: &str = ".config/clash-subscribe/override-settings.yaml";
+const CONFIG_FILE: &str = "config.yaml";
+const OVERRIDE_FILE: &str = "override-settings.yaml";
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -51,11 +51,15 @@ impl MainConfig {
     }
 }
 
-pub fn load_config() -> io::Result<(MainConfig, HashMap<String, Value>, bool)> {
+pub fn config_path() -> PathBuf {
     let home_dir = dirs::home_dir().unwrap_or_default();
-    let config_dir = home_dir.join(CONFIG_DIR);
-    let config_file = home_dir.join(CONFIG_FILE);
-    let override_file = home_dir.join(OVERRIDE_FILE);
+    home_dir.join(CONFIG_DIR)
+}
+
+pub fn load_config() -> io::Result<(MainConfig, HashMap<String, Value>, bool)> {
+    let config_dir = config_path();
+    let config_file = config_dir.join(CONFIG_FILE);
+    let override_file = config_dir.join(OVERRIDE_FILE);
 
     let mut config = MainConfig::default();
     let mut override_config = HashMap::new();
@@ -78,6 +82,9 @@ pub fn load_config() -> io::Result<(MainConfig, HashMap<String, Value>, bool)> {
         success = false;
     } else {
         config = MainConfig::read_from(&config_file)?;
+        if config.remote_url() == MainConfig::default().remote_url() {
+            success = false;
+        }
     }
     
     if !override_file.exists() || !override_file.is_file() {
