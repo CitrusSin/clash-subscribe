@@ -1,11 +1,13 @@
 mod config;
 mod updater;
 
-use std::io;
+use std::error::Error;
 use config::*;
 use updater::*;
 
-fn main() -> io::Result<()> {
+pub type Result<T> = std::result::Result<T, Box<dyn Error>>;
+
+fn main() -> Result<()> {
     println!("clash-subscribe v0.1.0");
     let (config, override_map, success) = load_config()?;
     if !success {
