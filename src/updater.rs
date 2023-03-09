@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::fs::File;
 use std::io;
+use std::io::Read;
 
 use serde_yaml::Value;
 
@@ -11,6 +12,15 @@ pub fn update_clash_subscription(config: &MainConfig, override_map: &HashMap<Str
         .map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
     let mut clash_config: HashMap<String, Value> = serde_yaml::from_reader(req)
         .map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+
+    if clash_config.len() == 0 {
+        print!("Warning: Configuration is empty. Continue? [y/N]");
+        let mut data: [u8;1] = [0];
+        let len = io::stdin().read(&mut data).unwrap_or_default();
+        if len != 1 || data[0] != 'y' as u8 {
+            return Ok(());
+        }
+    }
     
     for (key, val) in override_map {
         match clash_config.get_mut(key) {
