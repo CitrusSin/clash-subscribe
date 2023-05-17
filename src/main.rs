@@ -16,7 +16,7 @@ fn main() -> Result<()> {
         return Ok(())
     }
     println!("Config load complete.");
-    println!("Trying to fetch clash config from {} to {}", config.remote_url(), config.local_config().display());
+    println!("Trying to fetch clash config to {}", config.local_config().display());
     
     let mut successful = false;
     while !successful {
